@@ -7,32 +7,61 @@
 </head>
 <body>
 
-<form action="" method="POST">
-        <label type="text" name="titulo">Seleccionar Raza</label>
-        <select name="raza">
-            <?php
-            foreach($dogs as $dog){
-                echo '<option value='. $dog .'>'.$dog.'</option>';
-            }
-            ?>
-        </select>
-        <br><br>
-        <input type="submit" value="Buscar">
-    </form>
-
 <?php
     // Petición a la API URL
     $apiUrl = "https://dog.ceo/api/breeds/list/all";
-    // Se almacena el objeto de la función curl
     $curl = curl_init();
-    // Establecemos la conexión con la API y le pasamos el parámetro
     curl_setopt($curl, CURLOPT_URL, $apiUrl);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     $respuesta = curl_exec($curl);
-    // Convertimos la respuesta a un Array de Objetos
-    $array = json_decode($respuesta, true);
-    $dogs = $array['message'];
-    var_dump($dogs);
-    ?>
+    // -> message accedemos a la propiedad del objeto
+    $data = json_decode($respuesta)->message;
+
+    $imagenAleatoria = '';
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if (isset($_POST["raza"])) {
+            $razaSeleccionada = $_POST["raza"];
+            $dogRazaUrl = "https://dog.ceo/api/breed/$razaSeleccionada/images/random";
+
+            curl_setopt($curl, CURLOPT_URL, $dogRazaUrl);
+            $respuestaImagen = curl_exec($curl);
+            $respuestaImagen = json_decode($respuestaImagen);
+            $imagenAleatoria = $respuestaImagen->message;
+        }
+    }
+
+    curl_close($curl);
+?>
+
+<form action="" method="POST">
+    <label>Seleccionar Raza</label>
+    <select name="raza">
+        <?php
+        if ($data) {
+            foreach ($data as $raza => $subRazas) {
+                if (empty($subRazas)) {
+                    echo "<option value=\"$raza\">$raza</option>";
+                } else {
+                    foreach ($subRazas as $subRaza) {
+                        echo "<option value=\"$raza/$subRaza\">$subRaza - $raza</option>";
+                    }
+                }
+            }
+        } else {
+            echo "<option>Error al cargar razas</option>";
+        }
+        ?>
+    </select>
+    <br><br>
+    <input type="submit" value="Buscar">
+</form>
+
+<?php
+    if ($imagenAleatoria != '') {
+        echo "<img src=\"$imagenAleatoria\" alt=\"Imagen de perro\">";
+    }
+?>
+
 </body>
 </html>
