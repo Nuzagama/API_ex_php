@@ -60,8 +60,9 @@
     $animes = $array['data'];
 
     foreach($animes as $anime){?>
-        <h1><?php echo $anime['title'] ?></h1>;
-        <img src="<?php echo $anime['images']['jpg']['image_url']?>">;
+        <h1><?php echo $anime['title'] ?></h1>
+        <p><a href="show_anime.php?id=<?php echo $anime['mal_id']?>">Ver detalles</a></p>
+        <img src="<?php echo $anime['images']['jpg']['image_url']?>">
         <h1><?php echo $anime['score']?></h1>
 
 
